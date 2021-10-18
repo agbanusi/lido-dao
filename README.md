@@ -24,7 +24,7 @@ I created the getAvailableAmount function to allow users to check their availabl
 
 It is initialized with the Lido proxy contract address, stEth token address and referral address
 
-After writing the contract, it was compiled and deployed on the goerli testnet at [![0x9e4f46fD9Ac2D8F7A3b0b90E2cF013321796DF11](https://goerli.etherscan.io/address/0x9e4f46fd9ac2d8f7a3b0b90e2cf013321796df11)] using 0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F as th Lido and token address and 0x05b2DCeDEe832Ba4ae7631cD1fF6E5Fc2c88037C as the referral.
+After writing the contract, it was compiled and deployed on the goerli testnet at [0x9e4f46fD9Ac2D8F7A3b0b90E2cF013321796DF11](https://goerli.etherscan.io/address/0x9e4f46fd9ac2d8f7a3b0b90e2cf013321796df11) using 0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F as th Lido and token address and 0x05b2DCeDEe832Ba4ae7631cD1fF6E5Fc2c88037C as the referral.
 
 Test was also written to ensure proper behaviour and test all features and reverts
 you can run the test with `yarn test`
