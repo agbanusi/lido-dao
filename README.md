@@ -1,13 +1,33 @@
 # Programming assignment
 
 Background: Lido is a protocol that lets users stake their ETH in the Ethereum 2.0 Beacon Chain and provides them with stETH. stETH is an interest bearing version of ETH, meaning users who hold it will see their balance increase over time. For this assignment, you will:
-* Interact with deployed Lido contracts on the Görli testnet OR deploy them on a local blockchain (see below documentation)
-* Write and deploy a smart contract that takes in the user's ETH and deposits it to Lido. This will convert the ETH to stETH, which your smart contract will custody
-* In this contract, enable the user who made the deposit to withdraw only as much stETH as they deposited (i.e. if they deposited 10 ETH, allow them to withdraw up to 10 stETH from the contract)
-* Write test cases for this function in a language / framework of your choice
-* Add a new section in this file that describes your process clearly enough to replicate
- 
+
+- Interact with deployed Lido contracts on the Görli testnet OR deploy them on a local blockchain (see below documentation)
+- Write and deploy a smart contract that takes in the user's ETH and deposits it to Lido. This will convert the ETH to stETH, which your smart contract will custody
+- In this contract, enable the user who made the deposit to withdraw only as much stETH as they deposited (i.e. if they deposited 10 ETH, allow them to withdraw up to 10 stETH from the contract)
+- Write test cases for this function in a language / framework of your choice
+- Add a new section in this file that describes your process clearly enough to replicate
+
 To complete the assignment, fork this repo, make changes there, and then add Github user sforman2000 to the repo when you're finished. Your submission will be judged based on functionality, documentation, and test coverage. We recommend spending no more than three hours on this assignment.
+
+<hr />
+
+# Solution to programming assignment
+
+What was done:
+
+I wrote a contract called LidoStake to have three main functions which are the callStake to stake eth in the Lido contract done by calling the Lido proxy contract using the ILido template. The callStake function is a payable function that calls the submit function of the Lido contract with the predefined referral and receives stEth in returns, to track the returns of each user staking I used a mapping to map user addresses with their stEth withdrawable value, it emits a staked event on completion.
+
+The withdrawStake function allows the user to withdraw their stEth from the contract specifying the amount and ensuring the amount requested is not more than amount mapped to you. It emits a withdrawn event on completion.
+
+I created the getAvailableAmount function to allow users to check their available amount of stEth to withdraw.
+
+It is initialized with the Lido proxy contract address, stEth token address and referral address
+
+After writing the contract, it was compiled and deployed on the goerli testnet at [![0x9e4f46fD9Ac2D8F7A3b0b90E2cF013321796DF11](https://goerli.etherscan.io/address/0x9e4f46fd9ac2d8f7a3b0b90e2cf013321796df11)] using 0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F as th Lido and token address and 0x05b2DCeDEe832Ba4ae7631cD1fF6E5Fc2c88037C as the referral.
+
+Test was also written to ensure proper behaviour and test all features and reverts
+you can run the test with `yarn test`
 
 <hr/>
 
@@ -24,8 +44,8 @@ Unlike staked ether, the stETH token is free from the limitations associated wit
 
 Before getting started with this repo, please read:
 
-* [A Primer](https://lido.fi/static/Lido:Ethereum-Liquid-Staking.pdf)
-* [Documentation](/docs)
+- [A Primer](https://lido.fi/static/Lido:Ethereum-Liquid-Staking.pdf)
+- [Documentation](/docs)
 
 ## Lido DAO
 
@@ -45,17 +65,21 @@ Most of the protocol is implemented as a set of smart contracts that extend the 
 These contracts are located in the [contracts/0.4.24](contracts/0.4.24) directory. Additionally, there are contracts that don't depend on the Aragon; they are located in the [contracts/0.6.12](contracts/0.6.12) directory.
 
 #### [Lido](contracts/0.4.24/Lido.sol)
+
 Lido is the core contract which acts as a liquid staking pool. The contract is responsible for Ether deposits and withdrawals, minting and burning liquid tokens, delegating funds to node operators, applying fees, and accepting updates from the oracle contract. Node Operators' logic is extracted to a separate contract, NodeOperatorsRegistry.
 
 Lido also acts as an ERC20 token which represents staked ether, stETH. Tokens are minted upon deposit and burned when redeemed. stETH tokens are pegged 1:1 to the Ethers that are held by Lido. stETH token’s balances are updated when the oracle reports change in total stake every day.
 
 #### [NodeOperatorsRegistry](contracts/0.4.24/nos/NodeOperatorsRegistry.sol)
+
 Node Operators act as validators on the Beacon chain for the benefit of the protocol. The DAO selects node operators and adds their addresses to the NodeOperatorsRegistry contract. Authorized operators have to generate a set of keys for the validation and also provide them with the smart contract. As Ether is received from users, it is distributed in chunks of 32 Ether between all active Node Operators. The contract contains a list of operators, their keys, and the logic for distributing rewards between them. The DAO can deactivate misbehaving operators.
 
 #### [LidoOracle](contracts/0.4.24/oracle/LidoOracle.sol)
+
 LidoOracle is a contract where oracles send addresses' balances controlled by the DAO on the ETH 2.0 side. The balances can go up because of reward accumulation and can go down due to slashing and staking penalties. Oracles are assigned by the DAO.
 
 #### [WstETH](contracts/0.6.12/WstETH.sol)
+
 It's an ERC20 token that represents the account's share of the total supply of stETH tokens. The balance of a wstETH token holder only changes on transfers, unlike the balance of stETH that is also changed when oracles report staking rewards, penalties, and slashings. It's a "power user" token that is required for some DeFi protocols like Uniswap v2, cross-chain bridges, etc.
 
 The contract also works as a wrapper that accepts stETH tokens and mints wstETH in return. The reverse exchange works exactly the opposite, the received wstETH tokens are burned, and stETH tokens are returned to the user with any accrued rebalance results.
@@ -64,58 +88,58 @@ The contract also works as a wrapper that accepts stETH tokens and mints wstETH 
 
 ### Mainnet
 
-* Lido DAO: [`0xb8FFC3Cd6e7Cf5a098A1c92F48009765B24088Dc`](https://etherscan.io/address/0xb8FFC3Cd6e7Cf5a098A1c92F48009765B24088Dc) (proxy)
-* LDO token: [`0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32`](https://etherscan.io/address/0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32)
-* Lido and stETH token: [`0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84`](https://etherscan.io/address/0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84) (proxy)
-* Node Operators registry: [`0x55032650b14df07b85bF18A3a3eC8E0Af2e028d5`](https://etherscan.io/address/0x55032650b14df07b85bF18A3a3eC8E0Af2e028d5) (proxy)
-* Oracle: [`0x442af784A788A5bd6F42A01Ebe9F287a871243fb`](https://etherscan.io/address/0x442af784A788A5bd6F42A01Ebe9F287a871243fb) (proxy)
-* WstETH token: [`0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0`](https://etherscan.io/token/0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0)
-* Aragon Voting: [`0x2e59A20f205bB85a89C53f1936454680651E618e`](https://etherscan.io/address/0x2e59A20f205bB85a89C53f1936454680651E618e) (proxy)
-* Aragon Token Manager: [`0xf73a1260d222f447210581DDf212D915c09a3249`](https://etherscan.io/address/0xf73a1260d222f447210581DDf212D915c09a3249) (proxy)
-* Aragon Finance: [`0xB9E5CBB9CA5b0d659238807E84D0176930753d86`](https://etherscan.io/address/0xB9E5CBB9CA5b0d659238807E84D0176930753d86) (proxy)
-* Aragon Agent: [`0x3e40D73EB977Dc6a537aF587D48316feE66E9C8c`](https://etherscan.io/address/0x3e40D73EB977Dc6a537aF587D48316feE66E9C8c) (proxy)
+- Lido DAO: [`0xb8FFC3Cd6e7Cf5a098A1c92F48009765B24088Dc`](https://etherscan.io/address/0xb8FFC3Cd6e7Cf5a098A1c92F48009765B24088Dc) (proxy)
+- LDO token: [`0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32`](https://etherscan.io/address/0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32)
+- Lido and stETH token: [`0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84`](https://etherscan.io/address/0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84) (proxy)
+- Node Operators registry: [`0x55032650b14df07b85bF18A3a3eC8E0Af2e028d5`](https://etherscan.io/address/0x55032650b14df07b85bF18A3a3eC8E0Af2e028d5) (proxy)
+- Oracle: [`0x442af784A788A5bd6F42A01Ebe9F287a871243fb`](https://etherscan.io/address/0x442af784A788A5bd6F42A01Ebe9F287a871243fb) (proxy)
+- WstETH token: [`0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0`](https://etherscan.io/token/0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0)
+- Aragon Voting: [`0x2e59A20f205bB85a89C53f1936454680651E618e`](https://etherscan.io/address/0x2e59A20f205bB85a89C53f1936454680651E618e) (proxy)
+- Aragon Token Manager: [`0xf73a1260d222f447210581DDf212D915c09a3249`](https://etherscan.io/address/0xf73a1260d222f447210581DDf212D915c09a3249) (proxy)
+- Aragon Finance: [`0xB9E5CBB9CA5b0d659238807E84D0176930753d86`](https://etherscan.io/address/0xB9E5CBB9CA5b0d659238807E84D0176930753d86) (proxy)
+- Aragon Agent: [`0x3e40D73EB977Dc6a537aF587D48316feE66E9C8c`](https://etherscan.io/address/0x3e40D73EB977Dc6a537aF587D48316feE66E9C8c) (proxy)
 
 ### Görli+Prater testnet
 
-* Lido DAO: [`0x1dD91b354Ebd706aB3Ac7c727455C7BAA164945A`](https://goerli.etherscan.io/address/0x1dD91b354Ebd706aB3Ac7c727455C7BAA164945A) (proxy)
-* LDO token: [`0x56340274fB5a72af1A3C6609061c451De7961Bd4`](https://goerli.etherscan.io/address/0x56340274fB5a72af1A3C6609061c451De7961Bd4)
-* Lido and stETH token: [`0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F`](https://goerli.etherscan.io/address/0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F) (proxy)
-* Node Operators registry: [`0x9D4AF1Ee19Dad8857db3a45B0374c81c8A1C6320`](https://goerli.etherscan.io/address/0x9D4AF1Ee19Dad8857db3a45B0374c81c8A1C6320) (proxy)
-* Oracle: [`0x24d8451BC07e7aF4Ba94F69aCDD9ad3c6579D9FB`](https://goerli.etherscan.io/address/0x24d8451BC07e7aF4Ba94F69aCDD9ad3c6579D9FB) (proxy)
-* WstETH token: [`0x1643e812ae58766192cf7d2cf9567df2c37e9b7f`](https://goerli.etherscan.io/address/0x1643e812ae58766192cf7d2cf9567df2c37e9b7f)
-* Aragon Voting: [`0xbc0B67b4553f4CF52a913DE9A6eD0057E2E758Db`](https://goerli.etherscan.io/address/0xbc0B67b4553f4CF52a913DE9A6eD0057E2E758Db) (proxy)
-* Aragon Token Manager: [`0xDfe76d11b365f5e0023343A367f0b311701B3bc1`](https://goerli.etherscan.io/address/0xDfe76d11b365f5e0023343A367f0b311701B3bc1) (proxy)
-* Aragon Finance: [`0x75c7b1D23f1cad7Fb4D60281d7069E46440BC179`](https://goerli.etherscan.io/address/0x75c7b1D23f1cad7Fb4D60281d7069E46440BC179) (proxy)
-* Aragon Agent: [`0x4333218072D5d7008546737786663c38B4D561A4`](https://goerli.etherscan.io/address/0x4333218072D5d7008546737786663c38B4D561A4) (proxy)
+- Lido DAO: [`0x1dD91b354Ebd706aB3Ac7c727455C7BAA164945A`](https://goerli.etherscan.io/address/0x1dD91b354Ebd706aB3Ac7c727455C7BAA164945A) (proxy)
+- LDO token: [`0x56340274fB5a72af1A3C6609061c451De7961Bd4`](https://goerli.etherscan.io/address/0x56340274fB5a72af1A3C6609061c451De7961Bd4)
+- Lido and stETH token: [`0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F`](https://goerli.etherscan.io/address/0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F) (proxy)
+- Node Operators registry: [`0x9D4AF1Ee19Dad8857db3a45B0374c81c8A1C6320`](https://goerli.etherscan.io/address/0x9D4AF1Ee19Dad8857db3a45B0374c81c8A1C6320) (proxy)
+- Oracle: [`0x24d8451BC07e7aF4Ba94F69aCDD9ad3c6579D9FB`](https://goerli.etherscan.io/address/0x24d8451BC07e7aF4Ba94F69aCDD9ad3c6579D9FB) (proxy)
+- WstETH token: [`0x1643e812ae58766192cf7d2cf9567df2c37e9b7f`](https://goerli.etherscan.io/address/0x1643e812ae58766192cf7d2cf9567df2c37e9b7f)
+- Aragon Voting: [`0xbc0B67b4553f4CF52a913DE9A6eD0057E2E758Db`](https://goerli.etherscan.io/address/0xbc0B67b4553f4CF52a913DE9A6eD0057E2E758Db) (proxy)
+- Aragon Token Manager: [`0xDfe76d11b365f5e0023343A367f0b311701B3bc1`](https://goerli.etherscan.io/address/0xDfe76d11b365f5e0023343A367f0b311701B3bc1) (proxy)
+- Aragon Finance: [`0x75c7b1D23f1cad7Fb4D60281d7069E46440BC179`](https://goerli.etherscan.io/address/0x75c7b1D23f1cad7Fb4D60281d7069E46440BC179) (proxy)
+- Aragon Agent: [`0x4333218072D5d7008546737786663c38B4D561A4`](https://goerli.etherscan.io/address/0x4333218072D5d7008546737786663c38B4D561A4) (proxy)
 
 ### Görli+Pyrmont testnet
 
-* Lido DAO: [`0xE9c991d2c9Ac29b041C8D05484C2104bD00CFF4b`](https://goerli.etherscan.io/address/0xE9c991d2c9Ac29b041C8D05484C2104bD00CFF4b) (proxy)
-* LDO token: [`0xF837FBd803Ad6EdA0a89c5acF8785034F5aB33f2`](https://goerli.etherscan.io/address/0xF837FBd803Ad6EdA0a89c5acF8785034F5aB33f2)
-* stETH token: [`0xA0cA1c13721BAB3371E0609FFBdB6A6B8e155CC0`](https://goerli.etherscan.io/address/0xA0cA1c13721BAB3371E0609FFBdB6A6B8e155CC0) (proxy)
-* cstETH token: [`0x259d1D7058db3C7cB2aa15f60c1f40f261e9A009`](https://goerli.etherscan.io/address/0x259d1D7058db3C7cB2aa15f60c1f40f261e9A009)
-* Lido: [`0xA5d26F68130c989ef3e063c9bdE33BC50a86629D`](https://goerli.etherscan.io/address/0xA5d26F68130c989ef3e063c9bdE33BC50a86629D) (proxy)
-* Node Operators registry: [`0xB1e7Fb9E9A71063ab552dDEE87Ea8C6eEc7F5c7A`](https://goerli.etherscan.io/address/0xB1e7Fb9E9A71063ab552dDEE87Ea8C6eEc7F5c7A) (proxy)
-* Oracle: [`0x8aA931352fEdC2A5a5b3E20ed3A546414E40D86C`](https://goerli.etherscan.io/address/0x8aA931352fEdC2A5a5b3E20ed3A546414E40D86C) (proxy)
-* Aragon Voting: [`0xA54DBf1B494113fBDA2E593419eE7241EfE8B766`](https://goerli.etherscan.io/address/0xA54DBf1B494113fBDA2E593419eE7241EfE8B766) (proxy)
-* Aragon token manager: [`0xB90D5df4aBDf5F69a00088d43E4A0Fa8A8b44244`](https://goerli.etherscan.io/address/0xB90D5df4aBDf5F69a00088d43E4A0Fa8A8b44244) (proxy)
-* Aragon finance: [`0xfBfa38921d745FD7bE9fa657FFbcDFecC4Ab7Cd4`](https://goerli.etherscan.io/address/0xfBfa38921d745FD7bE9fa657FFbcDFecC4Ab7Cd4) (proxy)
-* Aragon agent: [`0xd616af91a0C3fE5AEeA0c1FaEfC2d73AcA82F0c9`](https://goerli.etherscan.io/address/0xd616af91a0C3fE5AEeA0c1FaEfC2d73AcA82F0c9) (proxy)
+- Lido DAO: [`0xE9c991d2c9Ac29b041C8D05484C2104bD00CFF4b`](https://goerli.etherscan.io/address/0xE9c991d2c9Ac29b041C8D05484C2104bD00CFF4b) (proxy)
+- LDO token: [`0xF837FBd803Ad6EdA0a89c5acF8785034F5aB33f2`](https://goerli.etherscan.io/address/0xF837FBd803Ad6EdA0a89c5acF8785034F5aB33f2)
+- stETH token: [`0xA0cA1c13721BAB3371E0609FFBdB6A6B8e155CC0`](https://goerli.etherscan.io/address/0xA0cA1c13721BAB3371E0609FFBdB6A6B8e155CC0) (proxy)
+- cstETH token: [`0x259d1D7058db3C7cB2aa15f60c1f40f261e9A009`](https://goerli.etherscan.io/address/0x259d1D7058db3C7cB2aa15f60c1f40f261e9A009)
+- Lido: [`0xA5d26F68130c989ef3e063c9bdE33BC50a86629D`](https://goerli.etherscan.io/address/0xA5d26F68130c989ef3e063c9bdE33BC50a86629D) (proxy)
+- Node Operators registry: [`0xB1e7Fb9E9A71063ab552dDEE87Ea8C6eEc7F5c7A`](https://goerli.etherscan.io/address/0xB1e7Fb9E9A71063ab552dDEE87Ea8C6eEc7F5c7A) (proxy)
+- Oracle: [`0x8aA931352fEdC2A5a5b3E20ed3A546414E40D86C`](https://goerli.etherscan.io/address/0x8aA931352fEdC2A5a5b3E20ed3A546414E40D86C) (proxy)
+- Aragon Voting: [`0xA54DBf1B494113fBDA2E593419eE7241EfE8B766`](https://goerli.etherscan.io/address/0xA54DBf1B494113fBDA2E593419eE7241EfE8B766) (proxy)
+- Aragon token manager: [`0xB90D5df4aBDf5F69a00088d43E4A0Fa8A8b44244`](https://goerli.etherscan.io/address/0xB90D5df4aBDf5F69a00088d43E4A0Fa8A8b44244) (proxy)
+- Aragon finance: [`0xfBfa38921d745FD7bE9fa657FFbcDFecC4Ab7Cd4`](https://goerli.etherscan.io/address/0xfBfa38921d745FD7bE9fa657FFbcDFecC4Ab7Cd4) (proxy)
+- Aragon agent: [`0xd616af91a0C3fE5AEeA0c1FaEfC2d73AcA82F0c9`](https://goerli.etherscan.io/address/0xd616af91a0C3fE5AEeA0c1FaEfC2d73AcA82F0c9) (proxy)
 
 ## Development
 
 ### Requirements
 
-* shell - bash or zsh
-* docker
-* find
-* sed
-* jq
-* curl
-* cut
-* docker
-* node.js v12
-* (optional) Lerna
+- shell - bash or zsh
+- docker
+- find
+- sed
+- jq
+- curl
+- cut
+- docker
+- node.js v12
+- (optional) Lerna
 
 ### Installing Aragon & other deps
 
@@ -142,7 +166,7 @@ docker-compose build --no-cache
 
 ### Starting & stopping e2e environment
 
-> ***All E2E operations must be launched under the `./e2e` subdirectory***
+> **_All E2E operations must be launched under the `./e2e` subdirectory_**
 
 The E2E environment consists of two parts: ETH1-related processes and ETH 2.0-related processes.
 
@@ -164,11 +188,11 @@ then go to [http://localhost:3000/#/lido-dao/](http://localhost:3000/#/lido-dao/
 
 As a result of the script execution, the following will be installed:
 
-* the Deposit Contract instance;
-* all Aragon App instances (contracts: Lido, NodeOperatorsRegistry, and LidoOracle)
-* the Aragon PM for `lido.eth`;
-* the Lido DAO template;
-* and finally, the Lido DAO will be deployed.
+- the Deposit Contract instance;
+- all Aragon App instances (contracts: Lido, NodeOperatorsRegistry, and LidoOracle)
+- the Aragon PM for `lido.eth`;
+- the Lido DAO template;
+- and finally, the Lido DAO will be deployed.
 
 To start only the ETH1 part, use:
 
@@ -182,11 +206,11 @@ To work with the ETH2 part, the ETH1 part must be running.
 
 As a result of the script execution, the following will happen:
 
-* the Beacon chain genesis config (Minimal with tunes) will be generated;
-* validator's wallet with 4 keys will be generated;
-* a deposit of 32 ETH will be made to the Deposit Contract for each validator key;
-* based on the events about the deposit, a genesis block will be created, including validators;
-* ETH2 node will start from the new Genesis block.
+- the Beacon chain genesis config (Minimal with tunes) will be generated;
+- validator's wallet with 4 keys will be generated;
+- a deposit of 32 ETH will be made to the Deposit Contract for each validator key;
+- based on the events about the deposit, a genesis block will be created, including validators;
+- ETH2 node will start from the new Genesis block.
 
 To reseat and restart only the ETH2 part, use:
 
@@ -197,6 +221,7 @@ To reseat and restart only the ETH2 part, use:
 ##### Stop all
 
 To stop, use:
+
 > Note: this action permanently deletes all generated data
 
 ```bash
@@ -207,8 +232,8 @@ To stop, use:
 
 To build a DGK container:
 
- * Add your local SSH key to the Github account;
- * run `./dkg.sh` inside the `e2e` directory.
+- Add your local SSH key to the Github account;
+- run `./dkg.sh` inside the `e2e` directory.
 
 ### Build & test all our apps
 
@@ -279,10 +304,10 @@ same script twice and the second call will be a nop.
 You may want to specify some of the configuration options in `networks.<netId>` prior to running
 deployment to avoid those values being set to default values:
 
-* `owner` The address that everything will be deployed from.
-* `ensAddress` The address of a ENS instance.
-* `depositContractAddress` The address of the Beacon chain deposit contract (it will deployed otherwise).
-* `daoInitialSettings` Initial settings of the DAO; see below.
+- `owner` The address that everything will be deployed from.
+- `ensAddress` The address of a ENS instance.
+- `depositContractAddress` The address of the Beacon chain deposit contract (it will deployed otherwise).
+- `daoInitialSettings` Initial settings of the DAO; see below.
 
 You may specify any number additional keys inside any network state, they will be left intact by
 deployment scripts.
@@ -292,16 +317,16 @@ deployment scripts.
 Initial DAO settings can be specified pripr to deployment for the specific network in
 `networks.<netId>.daoInitialSettings` field inside `deployed.json` file.
 
-* `holders` Addresses of initial DAO token holders.
-* `stakes` Initial DAO token balances of the holders.
-* `tokenName` Name of the DAO token.
-* `tokenSymbol` Symbol of the DAO token.
-* `voteDuration` See [Voting app documentation].
-* `votingSupportRequired` See [Voting app documentation].
-* `votingMinAcceptanceQuorum` See [Voting app documentation].
-* `depositIterationLimit` See [protocol levers documentation].
+- `holders` Addresses of initial DAO token holders.
+- `stakes` Initial DAO token balances of the holders.
+- `tokenName` Name of the DAO token.
+- `tokenSymbol` Symbol of the DAO token.
+- `voteDuration` See [Voting app documentation].
+- `votingSupportRequired` See [Voting app documentation].
+- `votingMinAcceptanceQuorum` See [Voting app documentation].
+- `depositIterationLimit` See [protocol levers documentation].
 
-[Voting app documentation]: https://wiki.aragon.org/archive/dev/apps/voting
+[voting app documentation]: https://wiki.aragon.org/archive/dev/apps/voting
 [protocol levers documentation]: /protocol-levers.md
 
 An example of `deployed.json` file prepared for a testnet deployment:
@@ -390,7 +415,7 @@ the Free Software Foundation, version 3 of the License, or any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the [GNU General Public License](LICENSE)
