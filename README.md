@@ -1,22 +1,7 @@
-# Programming assignment
 
-Background: Lido is a protocol that lets users stake their ETH in the Ethereum 2.0 Beacon Chain and provides them with stETH. stETH is an interest bearing version of ETH, meaning users who hold it will see their balance increase over time. For this assignment, you will:
+# What I did
 
-- Interact with deployed Lido contracts on the Görli testnet OR deploy them on a local blockchain (see below documentation)
-- Write and deploy a smart contract that takes in the user's ETH and deposits it to Lido. This will convert the ETH to stETH, which your smart contract will custody
-- In this contract, enable the user who made the deposit to withdraw only as much stETH as they deposited (i.e. if they deposited 10 ETH, allow them to withdraw up to 10 stETH from the contract)
-- Write test cases for this function in a language / framework of your choice
-- Add a new section in this file that describes your process clearly enough to replicate
-
-To complete the assignment, fork this repo, make changes there, and then add Github user sforman2000 to the repo when you're finished. Your submission will be judged based on functionality, documentation, and test coverage. We recommend spending no more than three hours on this assignment.
-
-<hr />
-
-# Solution to programming assignment
-
-What was done:
-
-I wrote a contract called LidoStake to have three main functions which are the callStake to stake eth in the Lido contract done by calling the Lido proxy contract using the ILido template. The callStake function is a payable function that calls the submit function of the Lido contract with the predefined referral and receives stEth in returns, to track the returns of each user staking I used a mapping to map user addresses with their stEth withdrawable value, it emits a staked event on completion.
+I wrote a contract called LidoStake on the Lido-dao protocol and it has three main functions which are the callStake to stake eth in the Lido contract done by calling the Lido proxy contract using the ILido template. The callStake function is a payable function that calls the submit function of the Lido contract with the predefined referral and receives stEth in returns, to track the returns of each user staking I used a mapping to map user addresses with their stEth withdrawable value, it emits a staked event on completion.
 
 The withdrawStake function allows the user to withdraw their stEth from the contract specifying the amount and ensuring the amount requested is not more than amount mapped to you. It emits a withdrawn event on completion.
 
@@ -24,7 +9,7 @@ I created the getAvailableAmount function to allow users to check their availabl
 
 It is initialized with the Lido proxy contract address, stEth token address and referral address
 
-After writing the contract, it was compiled and deployed on the goerli testnet at [0x9e4f46fD9Ac2D8F7A3b0b90E2cF013321796DF11](https://goerli.etherscan.io/address/0x9e4f46fd9ac2d8f7a3b0b90e2cf013321796df11) using 0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F as th Lido and token address and 0x05b2DCeDEe832Ba4ae7631cD1fF6E5Fc2c88037C as the referral.
+After writing the contract, it was compiled and deployed on the goerli testnet at [0x9e4f46fD9Ac2D8F7A3b0b90E2cF013321796DF11](https://goerli.etherscan.io/address/0x9e4f46fd9ac2d8f7a3b0b90e2cf013321796df11) using 0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F as the Lido contract and token address and 0x05b2DCeDEe832Ba4ae7631cD1fF6E5Fc2c88037C as the referral.
 
 Test was also written to ensure proper behaviour and test all features and reverts
 you can run the test with `yarn test`
